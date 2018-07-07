@@ -4,7 +4,7 @@ Rubik's Cube API in Python3
 <br />
 <br />
 
-To have a GUI, execute the command `python3 display.py`
+To have a GUI, execute the command `python3 display.py`<br />
 Three buttons are displayed : 
 
 **Reset :** to reset the Rubik's Cube<br />
