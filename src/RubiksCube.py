@@ -10,6 +10,8 @@ from numpy import pi, isclose
 import random
 
 from cube import Cube
+from cube import taille_cube
+
 
 # Initialisation de la figure
 fig = plt.figure()
@@ -17,12 +19,11 @@ fig.canvas.set_window_title('Rubik\'s Cube')
 ax = fig.gca(projection='3d')
 ax.set_axis_off()
 
-
 pi_divided_by_2 = pi/2
 frame_number = 4 # number of display between the two states when rotating
 angle_to_rotate = pi_divided_by_2/(frame_number + 1)
 
-taille_cube = 0.3
+
 colors = {'orange': "#ff6f00",
           'white': "#fdfdfd",
           'green': "#009f0f",
@@ -42,14 +43,16 @@ colorss = {"#ff6f00":"orange",
 
 class RubiksCube():
 
-    def __init__(self):
+    def __init__(self, size):
 	    # Création des cubes du Rubik's cube
-        self.cube_list = [[[0 for i in range(3)] for j in range(3)] for k in range(3)]
+        self.cube_list = [[[0 for i in range(size)] for j in range(size)] for k in range(size)]
+        self.size = size
+        self.center = (1.0*taille_cube*self.size)/2
 
         # Initialisation des couleurs des cubes
-        for i in range(3): # slice
-            for j in range(3): # row
-                for k in range(3): # cube in a row
+        for i in range(size): # slice
+            for j in range(size): # row
+                for k in range(size): # cube in a row
                     cube_colors = [colors['black'],
 		                   colors['black'],
 		                   colors['black'],
@@ -58,23 +61,31 @@ class RubiksCube():
 		                   colors['black']]
                     if i==0:
                         cube_colors[0] = colors['orange']
-                    elif i==2:
+                    elif i==size-1:
                         cube_colors[2] = colors['red']
                     if j==0:
                         cube_colors[4] = colors['yellow']
-                    elif j==2:
+                    elif j==size-1:
                         cube_colors[5] = colors['white']
                     if k==0:
                         cube_colors[3] = colors['blue']
-                    elif k==2:
+                    elif k==size-1:
                         cube_colors[1] = colors['green']
 
                     self.cube_list[i][j][k] = Cube(taille_cube*k, taille_cube*i, taille_cube*j, cube_colors)
+                    
+
+    def display(self):
+        for i in range(self.size): # slice
+            for j in range(self.size): # row
+                for k in range(self.size): # cube in a row
                     ax.add_collection3d(self.cube_list[i][j][k].cube)
 
+        # boutons
         breset = Button(plt.axes([0.7, 0.05, 0.1, 0.075]), 'Reset')
         bshuffle = Button(plt.axes([0.81, 0.05, 0.1, 0.075]), 'Shuffle')
         bfinished = Button(plt.axes([0.92, 0.05, 0.1, 0.075]), 'Finished ?')
+        # effet des boutons
         breset.on_clicked(self.reset)
         bshuffle.on_clicked(self.shuffle)
         bfinished.on_clicked(self.is_finished)
@@ -84,53 +95,49 @@ class RubiksCube():
     def rotate_xy(self, row, left):
         if left:
             for cube in self.cubes_to_rotate:
-                cube.rotate(0.45, 0.45, 0, -angle_to_rotate)
+                cube.rotate(self.center, self.center, 0, -angle_to_rotate)
                 #ax.add_collection3d(cube.cube)
-            #for i in range(3):
-            #    for j in range(3):
-            #        self.cube_list[i][row][j].rotate(0.45, 0.45, 0, -angle_to_rotate)
-            #        ax.add_collection3d(self.cube_list[i][row][j].cube)
         else:
             for cube in self.cubes_to_rotate:
-                cube.rotate(0.45, 0.45, 0, angle_to_rotate)
-                #ax.add_collection3d(cube.cube
+                cube.rotate(self.center, self.center, 0, angle_to_rotate)
+                #ax.add_collection3d(cube.cube)
         ax.cla()
         ax.set_axis_off()
-        for i in range(3): # slice
-            for j in range(3): # row
-                for k in range(3): # cube in a row
+        for i in range(self.size): # slice
+            for j in range(self.size): # row
+                for k in range(self.size): # cube in a row
                     ax.add_collection3d(self.cube_list[i][j][k].cube)
 
     def rotate_xz(self, slice, left):
         if left:
             for cube in self.cubes_to_rotate:
-                cube.rotate(0.45, 0, 0.45, -angle_to_rotate)
+                cube.rotate(self.center, 0, self.center, -angle_to_rotate)
                 #ax.add_collection3d(cube.cube)
         else:
             for cube in self.cubes_to_rotate:
-                cube.rotate(0.45, 0, 0.45, angle_to_rotate)
+                cube.rotate(self.center, 0, self.center, angle_to_rotate)
                 #ax.add_collection3d(cube.cube)
         ax.cla()
         ax.set_axis_off()
-        for i in range(3): # slice
-            for j in range(3): # row
-                for k in range(3): # cube in a row
+        for i in range(self.size): # slice
+            for j in range(self.size): # row
+                for k in range(self.size): # cube in a rowself.center
                     ax.add_collection3d(self.cube_list[i][j][k].cube)
 
     def rotate_yz(self, column, left):
         if left:
             for cube in self.cubes_to_rotate:
-                cube.rotate(0, 0.45, 0.45, -angle_to_rotate)
+                cube.rotate(0, self.center, self.center, -angle_to_rotate)
                 #ax.add_collection3d(cube.cube)
         else:
             for cube in self.cubes_to_rotate:
-                cube.rotate(0, 0.45, 0.45, angle_to_rotate)
+                cube.rotate(0, self.center, self.center, angle_to_rotate)
                 #ax.add_collection3d(cube.cube)
         ax.cla()
         ax.set_axis_off()
-        for i in range(3): # slice
-            for j in range(3): # row
-                for k in range(3): # cube in a row
+        for i in range(self.size): # slice
+            for j in range(self.size): # row
+                for k in range(self.size): # cube in a row
                     ax.add_collection3d(self.cube_list[i][j][k].cube)
 
     def rotate(self, xy, xz, yz, row_slice_column, left):
@@ -164,9 +171,9 @@ class RubiksCube():
 
     def get_cube_xy(self, row, return_value=False):
         cubes = []
-        for i in range(3):
-            for j in range(3):
-                for k in range(3):
+        for i in range(self.size):
+            for j in range(self.size):
+                for k in range(self.size):
                     append = True
                     verts = self.cube_list[i][j][k].cube.verts
                     for vert in verts:
@@ -185,9 +192,9 @@ class RubiksCube():
 
     def get_cube_xz(self, slice, return_value=False):
         cubes = []
-        for i in range(3):
-            for j in range(3):
-                for k in range(3):
+        for i in range(self.size):
+            for j in range(self.size):
+                for k in range(self.size):
                     append = True
                     verts = self.cube_list[i][j][k].cube.verts
                     for vert in verts:
@@ -206,9 +213,9 @@ class RubiksCube():
 
     def get_cube_yz(self, column, return_value=False):
         cubes = []
-        for i in range(3):
-            for j in range(3):
-                for k in range(3):
+        for i in range(self.size):
+            for j in range(self.size):
+                for k in range(self.size):
                     append = True
                     verts = self.cube_list[i][j][k].cube.verts
                     for vert in verts:
@@ -246,13 +253,13 @@ class RubiksCube():
         is_finished &= self.__same_color_on_face(cubes_color)
 
         # face 2
-        cubes = self.get_cube_yz(2 * taille_cube, return_value=True)
+        cubes = self.get_cube_yz((self.size-1) * taille_cube, return_value=True)
         cubes_color = [cube.cube.facecolors for cube in cubes]
 
         is_finished &= self.__same_color_on_face(cubes_color)
 
         # face 3
-        cubes = self.get_cube_xz(2 * taille_cube, return_value=True)
+        cubes = self.get_cube_xz((self.size-1) * taille_cube, return_value=True)
         cubes_color = [cube.cube.facecolors for cube in cubes]
 
         is_finished &= self.__same_color_on_face(cubes_color)
@@ -273,10 +280,11 @@ class RubiksCube():
     def reset(self, event):
         ax.cla()
         ax.set_axis_off()
+
         # Initialisation des couleurs des cubes
-        for i in range(3): # slice
-            for j in range(3): # row
-                for k in range(3): # cube in a row
+        for i in range(self.size): # slice
+            for j in range(self.size): # row
+                for k in range(self.size): # cube in a row
                     cube_colors = [colors['black'],
 		                   colors['black'],
 		                   colors['black'],
@@ -285,15 +293,15 @@ class RubiksCube():
 		                   colors['black']]
                     if i==0:
                         cube_colors[0] = colors['orange']
-                    elif i==2:
+                    elif i==self.size-1:
                         cube_colors[2] = colors['red']
                     if j==0:
                         cube_colors[4] = colors['yellow']
-                    elif j==2:
+                    elif j==self.size-1:
                         cube_colors[5] = colors['white']
                     if k==0:
                         cube_colors[3] = colors['blue']
-                    elif k==2:
+                    elif k==self.size-1:
                         cube_colors[1] = colors['green']
 
                     self.cube_list[i][j][k] = Cube(taille_cube*k, taille_cube*i, taille_cube*j, cube_colors)
@@ -303,7 +311,7 @@ class RubiksCube():
         number_of_rotations = 30
 
         for i in range(number_of_rotations):
-            row_slice_column = random.randint(0,2)
+            row_slice_column = random.randint(0,self.size-1)
             left = bool(random.randint(0,1))
             direction = random.randint(0,2)
             if direction == 0:
