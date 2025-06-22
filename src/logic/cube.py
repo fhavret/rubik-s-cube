@@ -6,14 +6,17 @@ class Cube:
     def __init__(self, facecolors: dict[Face, Color]):
         self.facecolors = facecolors
 
+    def __eq__(self, other):
+        return self.facecolors == other.facecolors
+
     def rotate_xz(self):
         self.facecolors = {
             Face.FRONT: self.facecolors[Face.FRONT],
-            Face.RIGHT: self.facecolors[Face.TOP],
+            Face.RIGHT: self.facecolors[Face.BOTTOM],
             Face.BACK: self.facecolors[Face.BACK],
-            Face.LEFT: self.facecolors[Face.BOTTOM],
-            Face.BOTTOM: self.facecolors[Face.RIGHT],
-            Face.TOP: self.facecolors[Face.LEFT],
+            Face.LEFT: self.facecolors[Face.TOP],
+            Face.BOTTOM: self.facecolors[Face.LEFT],
+            Face.TOP: self.facecolors[Face.RIGHT],
         }
 
     def rotate_xy(self):

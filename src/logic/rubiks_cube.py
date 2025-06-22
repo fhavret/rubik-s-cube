@@ -1,7 +1,7 @@
-from typing import Iterable
-
+import copy
 import numpy as np
 import random
+from typing import Iterable
 
 from logic.cube import Cube
 from logic.enums.colors import Color
@@ -84,14 +84,9 @@ class RubiksCube:
                     if y == self.size - 1:
                         facecolors[Face.BACK] = Color.RED
 
-                    self.cubes[x, y, z] = Cube(facecolors)
+                    self.cubes[y, z, x] = Cube(facecolors)
 
     def shuffle(self, number_of_rotations: int) -> Iterable:
-        # TODO: fix it with this example
-        # yield False, False, True, 0
-        # yield False, True, False, 0
-        # yield False, False, True, 1
-
         for _ in range(number_of_rotations):
             number = random.randint(0, self.size - 1)
             slice_or_row_or_column = random.randint(0, 2)
@@ -101,34 +96,34 @@ class RubiksCube:
             rotate_column = slice_or_row_or_column == 2
 
             if rotate_slice:
-                self._rotate_slice(self.cubes[:, number, :])
+                self._rotate_slice(number)
             elif rotate_row:
-                self._rotate_row(self.cubes[:, :, number])
+                self._rotate_row(number)
             elif rotate_column:
-                self._rotate_column(self.cubes[number, :, :])
+                self._rotate_column(number)
 
             yield rotate_slice, rotate_row, rotate_column, number
 
-    def _rotate_slice(self, cubes: np.ndarray[Cube]):
-        cubes_copy = np.copy(cubes)
+    def _rotate_slice(self, number: int):
+        cubes_copy = copy.copy(self.cubes[number, :, :])
 
-        for x in range(self.size):
-            for z in range(self.size):
-                cubes[x, z] = cubes_copy[self.size - 1 - z, x]
-                cubes[x, z].rotate_xz()
+        for z in range(self.size):
+            for x in range(self.size):
+                self.cubes[number, z, x] = cubes_copy[self.size - 1 - x, z]
+                self.cubes[number, z, x].rotate_xz()
 
-    def _rotate_row(self, cubes: np.ndarray[Cube]):
-        cubes_copy = np.copy(cubes)
+    def _rotate_row(self, number: int):
+        cubes_copy = copy.copy(self.cubes[:, number, :])
 
-        for x in range(self.size):
-            for y in range(self.size):
-                cubes[x, y] = cubes_copy[self.size - 1 - y, x]
-                cubes[x, y].rotate_xy()
+        for y in range(self.size):
+            for x in range(self.size):
+                self.cubes[y, number, x] = cubes_copy[x, self.size - 1 - y]
+                self.cubes[y, number, x].rotate_xy()
 
-    def _rotate_column(self, cubes: np.ndarray[Cube]):
-        cubes_copy = np.copy(cubes)
+    def _rotate_column(self, number: int):
+        cubes_copy = copy.copy(self.cubes[:, :, number])
 
         for y in range(self.size):
             for z in range(self.size):
-                cubes[y, z] = cubes_copy[self.size - 1 - z, y]
-                cubes[y, z].rotate_yz()
+                self.cubes[y, z, number] = cubes_copy[self.size - 1 - z, y]
+                self.cubes[y, z, number].rotate_yz()
