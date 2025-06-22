@@ -31,7 +31,7 @@ class RubiksCubeDisplay:
         self.cubedisplay_mapper = {}
         self.cube_size = cube_size
         self.number_of_frames = number_of_frames
-        self.angle_to_rotate = np.pi / (2 * self.number_of_frames)
+        self.rotation_angle = np.pi / (2 * self.number_of_frames)
         self.center = self.cube_size * self.rubiks_cube.size / 2
 
         self.fig = plt.figure()
@@ -57,7 +57,7 @@ class RubiksCubeDisplay:
         for y in range(self.rubiks_cube.size):  # slice
             for z in range(self.rubiks_cube.size):  # row
                 for x in range(self.rubiks_cube.size):  # cube in a row
-                    cube = self.rubiks_cube.cubes[x, y, z]
+                    cube = self.rubiks_cube.cubes[y, z, x]
                     cube_display = self.cubedisplay_mapper.setdefault(
                         cube,
                         CubeDisplay(
@@ -86,7 +86,6 @@ class RubiksCubeDisplay:
             column_was_rotated,
             number,
         ) in self.rubiks_cube.shuffle(settings.SHUFFLE_NUMBER_OF_ROTATIONS):
-            print(slice_was_rotated, row_was_rotated, column_was_rotated, number)
             if slice_was_rotated:
                 f = self._rotate_slice
             elif row_was_rotated:
@@ -104,26 +103,26 @@ class RubiksCubeDisplay:
             )
 
             plt.draw()
-            plt.pause(2)
+            plt.pause(0.5)
 
     def _is_finished(self, event):
         is_finished = self.rubiks_cube.is_finished()
         print(is_finished)
 
     def _rotate_slice(self, number: int):
-        for cube in self.rubiks_cube.cubes[:, number, :].flatten():
-            cubedisplay = self.cubedisplay_mapper[cube]
-            cubedisplay.rotate(self.center, 0, self.center, self.angle_to_rotate)
-
-    def _rotate_row(self, number: int):
-        for cube in self.rubiks_cube.cubes[:, :, number].flatten():
-            cubedisplay = self.cubedisplay_mapper[cube]
-            cubedisplay.rotate(self.center, self.center, 0, self.angle_to_rotate)
-
-    def _rotate_column(self, number: int):
         for cube in self.rubiks_cube.cubes[number, :, :].flatten():
             cubedisplay = self.cubedisplay_mapper[cube]
-            cubedisplay.rotate(0, self.center, self.center, self.angle_to_rotate)
+            cubedisplay.rotate(self.center, 0, self.center, self.rotation_angle)
+
+    def _rotate_row(self, number: int):
+        for cube in self.rubiks_cube.cubes[:, number, :].flatten():
+            cubedisplay = self.cubedisplay_mapper[cube]
+            cubedisplay.rotate(self.center, self.center, 0, self.rotation_angle)
+
+    def _rotate_column(self, number: int):
+        for cube in self.rubiks_cube.cubes[:, :, number].flatten():
+            cubedisplay = self.cubedisplay_mapper[cube]
+            cubedisplay.rotate(0, self.center, self.center, self.rotation_angle)
 
 
 class CubeDisplay:
@@ -167,15 +166,18 @@ class CubeDisplay:
                 ]
             )
 
-        def _rotate(arr):
-            for x in range(arr.shape[0]):
-                for y in range(arr.shape[1]):
-                    arr[x, y, :] = np.dot(arr[x, y, :], rotation)
-            return arr
-
-        reference_point = np.full((6, 4, 3), [x, y, z])
-        self.verts = _rotate(self.verts - reference_point) + reference_point
+        self._translate(-x, -y, -z)
+        self._rotate(rotation)
+        self._translate(x, y, z)
         self.cube3d.set_verts(self.verts)
+
+    def _translate(self, dx: float, dy: float, dz: float):
+        self.verts += np.full((6, 4, 3), [dx, dy, dz])
+
+    def _rotate(self, rotation: np.ndarray):
+        for i in range(self.verts.shape[0]):
+            for j in range(self.verts.shape[1]):
+                self.verts[i, j, :] = np.dot(self.verts[i, j, :], rotation)
 
     def _get_verts(
         self, cube_size: float, x_start: float, y_start: float, z_start: float

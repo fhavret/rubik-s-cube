@@ -1,5 +1,4 @@
-from logic.enums.colors import Color
-from logic.enums.faces import Face
+from logic.enums import Color, Face
 
 
 class Cube:
@@ -8,6 +7,9 @@ class Cube:
 
     def __eq__(self, other):
         return self.facecolors == other.facecolors
+
+    def __hash__(self):
+        return id(self)
 
     def rotate_xz(self):
         self.facecolors = {

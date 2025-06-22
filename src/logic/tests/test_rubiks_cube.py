@@ -286,7 +286,7 @@ class TestRubiksCube:
         )
 
     def test_rotate_slice(self, rubiks_cube_3x3):
-        rubiks_cube_3x3._rotate_slice(0)
+        rubiks_cube_3x3.rotate_slice(0)
 
         assert rubiks_cube_3x3.cubes[0, 0, 0] == Cube(
             facecolors={
@@ -560,7 +560,7 @@ class TestRubiksCube:
         )
 
     def test_rotate_row(self, rubiks_cube_3x3):
-        rubiks_cube_3x3._rotate_row(0)
+        rubiks_cube_3x3.rotate_row(0)
 
         assert rubiks_cube_3x3.cubes[0, 0, 0] == Cube(
             facecolors={
@@ -834,7 +834,7 @@ class TestRubiksCube:
         )
 
     def test_rotate_column(self, rubiks_cube_3x3):
-        rubiks_cube_3x3._rotate_column(0)
+        rubiks_cube_3x3.rotate_column(0)
 
         assert rubiks_cube_3x3.cubes[0, 0, 0] == Cube(
             facecolors={
@@ -1106,3 +1106,42 @@ class TestRubiksCube:
                 Face.TOP: Color.YELLOW,
             }
         )
+
+    def test_is_finished(self, rubiks_cube_3x3):
+        assert rubiks_cube_3x3.is_finished()
+
+        rubiks_cube_3x3.rotate_row(0)
+        assert not rubiks_cube_3x3.is_finished()
+
+        rubiks_cube_3x3.rotate_row(1)
+        assert not rubiks_cube_3x3.is_finished()
+
+        rubiks_cube_3x3.rotate_row(2)
+        assert rubiks_cube_3x3.is_finished()
+
+    def test_rotate_slice_doesnt_create_new_cubes(self, rubiks_cube_3x3):
+        cubes_hash_before = set(
+            [hash(cube) for cube in rubiks_cube_3x3.cubes.flatten()]
+        )
+        rubiks_cube_3x3.rotate_slice(0)
+        cubes_hash_after = set([hash(cube) for cube in rubiks_cube_3x3.cubes.flatten()])
+
+        assert cubes_hash_before == cubes_hash_after
+
+    def test_rotate_row_doesnt_create_new_cubes(self, rubiks_cube_3x3):
+        cubes_hash_before = set(
+            [hash(cube) for cube in rubiks_cube_3x3.cubes.flatten()]
+        )
+        rubiks_cube_3x3.rotate_row(0)
+        cubes_hash_after = set([hash(cube) for cube in rubiks_cube_3x3.cubes.flatten()])
+
+        assert cubes_hash_before == cubes_hash_after
+
+    def test_rotate_column_doesnt_create_new_cubes(self, rubiks_cube_3x3):
+        cubes_hash_before = set(
+            [hash(cube) for cube in rubiks_cube_3x3.cubes.flatten()]
+        )
+        rubiks_cube_3x3.rotate_column(0)
+        cubes_hash_after = set([hash(cube) for cube in rubiks_cube_3x3.cubes.flatten()])
+
+        assert cubes_hash_before == cubes_hash_after
